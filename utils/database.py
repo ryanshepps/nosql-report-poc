@@ -91,8 +91,14 @@ def create_table(
     print(f"Table {table_name} created.")
 
 
-def delete_table():
-    return "Unimplemented"
+def delete_table(db: object, table_name: str):
+    print(f"Deleting table {table_name}...")
+    db.delete_table(
+        TableName=table_name
+    )
+    waiter = db.get_waiter("table_not_exists")
+    waiter.wait(TableName=table_name)
+    print(f"Table {table_name} deleted.")
 
 
 def bulk_load_items():
