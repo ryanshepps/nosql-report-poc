@@ -35,7 +35,7 @@ def create_table(
                 "KeyType": "SortKey|PartitionKey|PartitionSortKey",
             }]
     """
-    partition_key = None
+    partition_key = __find_partition_key(key_schema)
 
     new_table_attribute_definitions = []
     new_table_key_schema = []
@@ -58,9 +58,6 @@ def create_table(
                 "KeyType": "RANGE"
             })
         elif str(key["KeyType"]) == "SortKey":
-            if partition_key is None:
-                partition_key = __find_partition_key(key_schema)
-
             new_table_local_secondary_indexes.append({
                 "IndexName": f"{str(key['AttributeName'])}-SortKey",
                 "KeySchema": [
@@ -79,13 +76,21 @@ def create_table(
             })
 
     print(f"Creating Table {table_name}...")
-    db.create_table(
-        TableName=table_name,
-        AttributeDefinitions=new_table_attribute_definitions,
-        KeySchema=new_table_key_schema,
-        LocalSecondaryIndexes=new_table_local_secondary_indexes,
-        BillingMode="PAY_PER_REQUEST"
-    )
+    if len(new_table_local_secondary_indexes) > 0:
+        db.create_table(
+            TableName=table_name,
+            AttributeDefinitions=new_table_attribute_definitions,
+            KeySchema=new_table_key_schema,
+            LocalSecondaryIndexes=new_table_local_secondary_indexes,
+            BillingMode="PAY_PER_REQUEST"
+        )
+    else:
+        db.create_table(
+            TableName=table_name,
+            AttributeDefinitions=new_table_attribute_definitions,
+            KeySchema=new_table_key_schema,
+            BillingMode="PAY_PER_REQUEST"
+        )
     waiter = db.get_waiter("table_exists")
     waiter.wait(TableName=table_name)
     print(f"Table {table_name} created.")
