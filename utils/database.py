@@ -1,4 +1,7 @@
+from multiprocessing import Pool
 import configparser
+import copy
+from utils.parser import csv_to_list
 import boto3
 
 
@@ -106,12 +109,128 @@ def delete_table(db: object, table_name: str):
     print(f"Table {table_name} deleted.")
 
 
-def bulk_load_items():
-    return "Unimplemented"
+def __rename_indexes(rows_data: list, index_renames: list) -> list:
+    """
+    Todo:
+        Rename indexes in place to avoid an entirely new loop.
+    """
+    renamed_row_data = copy.deepcopy(rows_data)
+
+    for row_index in range(len(rows_data)):
+        for key in rows_data[row_index]:
+            for index in index_renames:
+                if key == index["IndexToRename"]:
+                    renamed_row_data[row_index][index["RenameTo"]] = rows_data[row_index][key]
+                    del renamed_row_data[row_index][index["IndexToRename"]]
+                    break
+
+    return renamed_row_data
 
 
-def add_item():
-    return "Unimplemented"
+def bulk_load_items(
+        db: object,
+        file_name: str,
+        default_table_name: str,
+        item_reshaper: callable = None):
+    """
+    Args:
+        item_reshaper (callable): A function with csv_to_list parameter like:
+            [{
+                "Country": "Costa Rica",
+                "Currency": "Costa Rican Colon",
+                "1970": 1874394,
+                ...
+                "2001": 1896077
+            }]
+            Can be transformed into something like
+            [
+                {
+                    "Country": "Costa Rica",
+                    "Year": 1970,
+                    "Population": 1874394,
+                },
+                {
+                    "Country": "Costa Rica",
+                    "Year": 2001,
+                    "Population": 1896077,
+                },
+                {
+                    "Country": "Costa Rica",
+                    "Currency": "Costa Rican Colon",
+                    "Table": "rshepp02_non_yearly" # Optional
+                }
+            ]
+    """
+    csv_row_data = csv_to_list(file_name)
+
+    if item_reshaper:
+        csv_row_data = item_reshaper(csv_row_data)
+
+    pool = Pool()
+    for row in csv_row_data:
+        if "Table" in row:
+            pool.apply_async(add_item, (None, row["Table"], row))
+        else:
+            pool.apply_async(add_item, (None, default_table_name, row))
+
+    pool.close()
+    pool.join()
+
+
+def __item_to_dynamodb_item(item: dict) -> dict:
+    dynamodb_item = {}
+
+    for key in item:
+        if type(item[key]) is int:
+            dynamodb_item[key] = {
+                "N": str(item[key])  # Numbers need to be converted to strings ;'(
+            }
+        else:
+            dynamodb_item[key] = {
+                "S": item[key]
+            }
+
+    return dynamodb_item
+
+
+def __generate_item_key_schema_from_table_key_schema(
+        db,
+        table_name,
+        item):
+    item_key_schema = {}
+    table_key_schema = db.describe_table(TableName=table_name)["Table"]["KeySchema"]
+
+    for table_key in table_key_schema:
+        current_key_schema = __item_to_dynamodb_item({
+            table_key["AttributeName"]: item[table_key["AttributeName"]]
+        })
+        item_key_schema[table_key["AttributeName"]] = current_key_schema[table_key["AttributeName"]]
+
+    return item_key_schema
+
+
+def add_item(db: object, table_name: str, item: dict):
+    if db is None:
+        db = authenticate("S5-S3.conf")
+
+    new_item = __item_to_dynamodb_item(item)
+    current_item = None
+
+    try:
+        key_schema = __generate_item_key_schema_from_table_key_schema(
+            db, table_name, item
+        )
+        current_item = db.get_item(TableName=table_name, Key=key_schema)["Item"]
+        db.put_item(
+            TableName=table_name,
+            Item={**current_item, **new_item})
+    except Exception:
+        # Current item does not exist
+        db.put_item(
+            TableName=table_name,
+            Item=new_item)
+
+    print(f"Added {item} successfully!")
 
 
 def delete_item():
