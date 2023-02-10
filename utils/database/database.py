@@ -2,6 +2,11 @@ from multiprocessing import Pool
 import configparser
 import copy
 from utils.parser import csv_to_list
+from .KeyConditionGenerator import KeyConditionGenerator
+from .boto3 import (
+    item_to_dynamodb_item,
+    generate_item_key_schema_from_table_key_schema
+)
 import boto3
 
 
@@ -177,47 +182,15 @@ def bulk_load_items(
     pool.join()
 
 
-def __item_to_dynamodb_item(item: dict) -> dict:
-    dynamodb_item = {}
-
-    for key in item:
-        if type(item[key]) is int:
-            dynamodb_item[key] = {
-                "N": str(item[key])  # Numbers need to be converted to strings ;'(
-            }
-        else:
-            dynamodb_item[key] = {
-                "S": item[key]
-            }
-
-    return dynamodb_item
-
-
-def __generate_item_key_schema_from_table_key_schema(
-        db,
-        table_name,
-        item):
-    item_key_schema = {}
-    table_key_schema = db.describe_table(TableName=table_name)["Table"]["KeySchema"]
-
-    for table_key in table_key_schema:
-        current_key_schema = __item_to_dynamodb_item({
-            table_key["AttributeName"]: item[table_key["AttributeName"]]
-        })
-        item_key_schema[table_key["AttributeName"]] = current_key_schema[table_key["AttributeName"]]
-
-    return item_key_schema
-
-
 def add_item(db: object, table_name: str, item: dict):
     if db is None:
         db = authenticate("S5-S3.conf")
 
-    new_item = __item_to_dynamodb_item(item)
+    new_item = item_to_dynamodb_item(item)
     current_item = None
 
     try:
-        key_schema = __generate_item_key_schema_from_table_key_schema(
+        key_schema = generate_item_key_schema_from_table_key_schema(
             db, table_name, item
         )
         current_item = db.get_item(TableName=table_name, Key=key_schema)["Item"]
@@ -241,8 +214,24 @@ def display_table():
     return "Unimplemented"
 
 
-def query():
-    return "Unimplemented"
+def query(
+        db: object,
+        table_name: str,
+        partition_key_name: str,
+        partition_key_val):
+    items = None
+
+    key_query_params = KeyConditionGenerator() \
+        .key(partition_key_name, partition_key_val) \
+        .build()
+
+    items = db.query(
+        TableName=table_name,
+        KeyConditionExpression=key_query_params["KeyConditionExpression"],
+        ExpressionAttributeValues=key_query_params["ExpressionAttributeValues"]
+    )["Items"]
+
+    return items
 
 
 def query_rank():
