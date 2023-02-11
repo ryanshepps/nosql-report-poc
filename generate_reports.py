@@ -1,5 +1,4 @@
 from utils.database.database import authenticate, query
-from utils.database.boto3 import dynamo_db_item_to_item
 from utils.database.TemplateCompiler import TemplateCompiler
 
 COUNTRY = "Costa Rica"
@@ -16,9 +15,7 @@ def generate_country_report_context() -> dict:
         table_name="rshepp02_non_yearly",
         partition_key_name="Country",
         partition_key_val=COUNTRY
-    )
-    non_yearly_country_data = \
-        dynamo_db_item_to_item(non_yearly_country_data[0])
+    )[0]
 
     context["name"] = non_yearly_country_data["Country"]
     context["official_name"] = non_yearly_country_data["Official Name"]

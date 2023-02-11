@@ -5,6 +5,7 @@ from utils.parser import csv_to_list
 from .KeyConditionGenerator import KeyConditionGenerator
 from .boto3 import (
     item_to_dynamodb_item,
+    dynamo_db_item_to_item,
     generate_item_key_schema_from_table_key_schema
 )
 import boto3
@@ -219,17 +220,20 @@ def query(
         table_name: str,
         partition_key_name: str,
         partition_key_val):
-    items = None
+    items = []
 
     key_query_params = KeyConditionGenerator() \
         .key(partition_key_name, partition_key_val) \
         .build()
 
-    items = db.query(
+    dynamo_db_items = db.query(
         TableName=table_name,
         KeyConditionExpression=key_query_params["KeyConditionExpression"],
         ExpressionAttributeValues=key_query_params["ExpressionAttributeValues"]
     )["Items"]
+
+    for dynamo_db_item in dynamo_db_items:
+        items.append(dynamo_db_item_to_item(dynamo_db_item))
 
     return items
 
