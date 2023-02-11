@@ -1,4 +1,4 @@
-from utils.database.database import authenticate, query
+from utils.database.database import authenticate, query, query_rank
 from utils.database.TemplateCompiler import TemplateCompiler
 
 COUNTRY = "Costa Rica"
@@ -22,6 +22,8 @@ def generate_country_report_context() -> dict:
     context["area"] = non_yearly_country_data["Area"]
     context["languages"] = non_yearly_country_data["Languages"]
     context["capital"] = non_yearly_country_data["Capital"]
+    context["area_rank"] = query_rank(
+        db, "rshepp02_non_yearly", "Country", COUNTRY, "Area")
 
     return context
 

@@ -238,5 +238,23 @@ def query(
     return items
 
 
-def query_rank():
-    return "Unimplmeneted"
+def query_rank(
+        db: object,
+        table_name: str,
+        partition_key_name: str,
+        partition_key_val: str,
+        attribute_to_rank: str):
+    dynamo_db_items = db.scan(
+        TableName=table_name,
+        ProjectionExpression=f"{partition_key_name}, {attribute_to_rank}",
+    )["Items"]
+
+    items = []
+    for dynamo_db_item in dynamo_db_items:
+        items.append(dynamo_db_item_to_item(dynamo_db_item))
+
+    items.sort(key=lambda item: int(item[attribute_to_rank]), reverse=True)
+
+    for rank, item in enumerate(items, start=1):
+        if item[partition_key_name] == partition_key_val:
+            return rank
