@@ -1,7 +1,9 @@
 boto3==1.26.64
 botocore==1.29.64
 flake8==6.0.0
+Jinja2==3.1.2
 jmespath==1.0.1
+MarkupSafe==2.1.2
 mccabe==0.7.0
 pycodestyle==2.10.0
 pyflakes==3.0.1
