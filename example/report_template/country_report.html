@@ -2,25 +2,15 @@
 <html>
 <head>
 <style>
-tr {
+table, th, td {
     border-collapse: collapse;
     border: 1px solid black;
 }
-
-#non-yearly tr {
-    display: flex;
-    flex-direction: column;
-    padding: 20px 0;
-}
-
-#non-yearly td {
-    padding: 5px;
-}
-
 </style>
 </head>
 <body>
     <h3>Report A - Country Level Report</h3>
+
     <center>
         <h3>{{ name }}</h3>
         <p><i>[Offcial Name: {{ official_name }}]</i></p>
@@ -36,5 +26,31 @@ tr {
             </tbody>
         </table>
     </center>
+
+    <h3>Population</h3>
+    <p>
+        <i>Table of Population, Population Density, and their respective world
+        ranking for that year, ordered by year:</i>
+    </p>
+    <table style="width: 100%">
+        <tbody>
+            <tr>
+                <th>Year</th>
+                <th>Population</th>
+                <th>Rank</th>
+                <th>Population Density (people/sq km)</th>
+                <th>Rank</th>
+            </tr>
+        {% for item in population_items %}
+            <tr>
+                <td>{{ item.year }}</td>
+                <td>{{ item.population }}</td>
+                <td>{{ item.population_rank }}</td>
+                <td>{{ item.population_density }}</td>
+                <td>{{ item.population_density_rank }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

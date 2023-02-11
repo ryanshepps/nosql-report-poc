@@ -238,22 +238,53 @@ def query(
     return items
 
 
-def query_rank(
+def scan(
         db: object,
         table_name: str,
-        partition_key_name: str,
-        partition_key_val: str,
-        attribute_to_rank: str):
+        include_attributes: str = None,
+        generated_filter_expression: str = None,
+        item_reshaper: callable = None):
+    dynamo_db_items = None
+
+    scan_args = {}
+    scan_args["TableName"] = table_name
+
+    if include_attributes is not None:
+        scan_args["ProjectionExpression"] = include_attributes
+    if generated_filter_expression is not None:
+        scan_args["FilterExpression"] = generated_filter_expression["FilterExpression"]
+        scan_args["ExpressionAttributeValues"] = generated_filter_expression["ExpressionAttributeValues"]
+
     dynamo_db_items = db.scan(
-        TableName=table_name,
-        ProjectionExpression=f"{partition_key_name}, {attribute_to_rank}",
+        **scan_args
     )["Items"]
 
     items = []
     for dynamo_db_item in dynamo_db_items:
         items.append(dynamo_db_item_to_item(dynamo_db_item))
 
-    items.sort(key=lambda item: int(item[attribute_to_rank]), reverse=True)
+    if item_reshaper is not None:
+        items = item_reshaper(items)
+
+    return items
+
+
+def query_rank(
+        db: object,
+        table_name: str,
+        partition_key_name: str,
+        partition_key_val: str,
+        attribute_to_rank: str):
+    def sort_by_attribute_to_rank(items):
+        items.sort(key=lambda item: int(item[attribute_to_rank]), reverse=True)
+        return items
+
+    items = scan(
+        db,
+        table_name=table_name,
+        include_attributes=f"{partition_key_name}, {attribute_to_rank}",
+        item_reshaper=sort_by_attribute_to_rank
+    )
 
     for rank, item in enumerate(items, start=1):
         if item[partition_key_name] == partition_key_val:
