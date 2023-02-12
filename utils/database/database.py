@@ -136,8 +136,9 @@ def __rename_indexes(rows_data: list, index_renames: list) -> list:
 
 def bulk_load_items(
         db: object,
-        file_name: str,
         default_table_name: str,
+        file_name: str = None,
+        items: list = None,
         item_reshaper: callable = None):
     """
     Args:
@@ -168,13 +169,22 @@ def bulk_load_items(
                 }
             ]
     """
-    csv_row_data = csv_to_list(file_name)
+    items_to_add = None
 
-    if item_reshaper:
-        csv_row_data = item_reshaper(csv_row_data)
+    if (file_name is None and items is None):
+        raise Exception("Must provide either file_name OR items")
+    elif file_name is not None:
+        items_to_add = csv_to_list(file_name)
+    elif items is not None:
+        items_to_add = items
+    else:
+        raise Exception("file_name OR items not provided")
+
+    if item_reshaper is not None:
+        items_to_add = item_reshaper(items_to_add)
 
     pool = Pool()
-    for row in csv_row_data:
+    for row in items_to_add:
         if "Table" in row:
             table = row["Table"]
             del row["Table"]  # Don't actually put Table as an item attribute

@@ -6,6 +6,7 @@ from utils.database.database import (
     authenticate,
     bulk_load_items,
     create_table,
+    scan,
 )
 
 db = authenticate("./S5-S3.conf")
@@ -126,7 +127,55 @@ bulk_load_items(
     item_reshaper=reshape_shortlist_languages)
 
 
+def reshape_shortlist_area(csv_row_data: list):
+    new_csv_row_data = []
+
+    for row in csv_row_data:
+        new_csv_row_data.append({
+            "IOS3": row["ISO3"],
+            "Country": row["Country Name"],
+            "Area": row["Area"]
+        })
+
+    return new_csv_row_data
+
+
+bulk_load_items(
+    db,
+    file_name="example/input_csv/shortlist_area.csv",
+    default_table_name="rshepp02_non_yearly",
+    item_reshaper=reshape_shortlist_area)
+
 bulk_load_items(
     db,
     file_name="example/input_csv/un_shortlist.csv",
     default_table_name="rshepp02_non_yearly")
+
+# Adding Population Density to table
+area_per_country = scan(
+    db,
+    table_name="rshepp02_non_yearly",
+    include_attributes=["Country", "Area"]
+)
+country_area_map = {}
+for item in area_per_country:
+    country_area_map[item["Country"]] = item["Area"]
+
+population_items = scan(
+    db,
+    table_name="rshepp02_non_economic",
+    include_attributes=["Population", "Year", "Country"]
+)
+population_density_items = []
+for item in population_items:
+    population_density_items.append({
+        "Year": int(item["Year"]),
+        "Country": item["Country"],
+        "Population Density": str(int(item["Population"]) / int(country_area_map[item["Country"]]))
+    })
+
+bulk_load_items(
+    db,
+    items=population_density_items,
+    default_table_name="rshepp02_non_economic"
+)

@@ -19,6 +19,6 @@ class ProjectionExpressionGenerator:
 
     def build(self):
         return {
-            "ProjectionExpression": self.expression[:-2],
+            "ProjectionExpression": self.expression[:-2],  # Reomves ", " from end of expression
             "ExpressionAttributeNames": self.expression_names
         }
