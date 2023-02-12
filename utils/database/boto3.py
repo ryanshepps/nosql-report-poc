@@ -21,7 +21,7 @@ def dynamo_db_item_to_item(dynamo_db_item: dict) -> dict:
         if "S" in dynamo_db_item[key]:
             item[key] = dynamo_db_item[key]["S"]
         elif "N" in dynamo_db_item[key]:
-            item[key] = dynamo_db_item[key]["N"]
+            item[key] = int(dynamo_db_item[key]["N"])
         else:
             item[key] = dynamo_db_item[key]
 

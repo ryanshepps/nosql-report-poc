@@ -12,6 +12,7 @@ from utils.database.database import (
 db = authenticate("./S5-S3.conf")
 
 
+# ----------------- Creating Tables -----------------
 create_table(
     db,
     table_name="rshepp02_non_yearly",
@@ -55,8 +56,9 @@ create_table(
         },
     ]
 )
+# # --------------------------------------------------------------------
 
-
+# # ----------------- Loading items from CSV files -----------------
 def reshape_shortlist_curpop(csv_row_data: list):
     new_csv_row_data = []
 
@@ -150,8 +152,9 @@ bulk_load_items(
     db,
     file_name="example/input_csv/un_shortlist.csv",
     default_table_name="rshepp02_non_yearly")
+# --------------------------------------------------------------------
 
-# Adding Population Density to table
+# ----------------- Adding Population Density to table -----------------
 area_per_country = scan(
     db,
     table_name="rshepp02_non_yearly",
@@ -179,3 +182,43 @@ bulk_load_items(
     items=population_density_items,
     default_table_name="rshepp02_non_economic"
 )
+# --------------------------------------------------------------------
+
+# ----------------- Adding Population and Population Density ranks to table -----------------
+non_economic_items = scan(
+    db,
+    table_name="rshepp02_non_economic"
+)
+
+grouped_by_year_population_items = {}
+for item in non_economic_items:
+    item_year = item["Year"]
+
+    if item_year not in grouped_by_year_population_items:
+        grouped_by_year_population_items[item_year] = []
+
+    grouped_by_year_population_items[item_year].append(item)
+
+# Rank each item in each group
+new_non_economic_items = []
+for year_group in grouped_by_year_population_items:
+    grouped_by_year_population_items[year_group] \
+        .sort(key=lambda item: int(item["Population"]), reverse=True)
+
+    for rank, item in enumerate(grouped_by_year_population_items[year_group], start=1):
+        item["Population Rank"] = rank
+
+    grouped_by_year_population_items[year_group] \
+        .sort(key=lambda item: float(item["Population Density"]), reverse=True)
+
+    for rank, item in enumerate(grouped_by_year_population_items[year_group], start=1):
+        item["Population Density Rank"] = rank
+
+    new_non_economic_items.extend(grouped_by_year_population_items[year_group])
+
+bulk_load_items(
+    db,
+    items=new_non_economic_items,
+    default_table_name="rshepp02_non_economic"
+)
+# --------------------------------------------------------------------
