@@ -1,6 +1,59 @@
-from utils.database import authenticate, bulk_load_items
+from enums.database import (
+    AttributeType,
+    KeyType,
+)
+from utils.database.database import (
+    authenticate,
+    bulk_load_items,
+    create_table,
+)
 
 db = authenticate("./S5-S3.conf")
+
+
+create_table(
+    db,
+    table_name="rshepp02_non_yearly",
+    key_schema=[{
+        "AttributeName": "Country",
+        "AttributeType": AttributeType.STRING,
+        "KeyType": KeyType.PARTITION_KEY
+    }]
+)
+
+create_table(
+    db,
+    table_name="rshepp02_non_economic",
+    key_schema=[
+        {
+            "AttributeName": "Year",
+            "AttributeType": AttributeType.NUMBER,
+            "KeyType": KeyType.PARTITION_KEY
+        },
+        {
+            "AttributeName": "Country",
+            "AttributeType": AttributeType.STRING,
+            "KeyType": KeyType.PARTITION_SORT_KEY
+        },
+    ]
+)
+
+create_table(
+    db,
+    table_name="rshepp02_economic",
+    key_schema=[
+        {
+            "AttributeName": "Country",
+            "AttributeType": AttributeType.STRING,
+            "KeyType": KeyType.PARTITION_KEY
+        },
+        {
+            "AttributeName": "Year",
+            "AttributeType": AttributeType.NUMBER,
+            "KeyType": KeyType.PARTITION_SORT_KEY
+        },
+    ]
+)
 
 
 def reshape_shortlist_curpop(csv_row_data: list):
