@@ -3,6 +3,7 @@ import configparser
 import copy
 from utils.parser import csv_to_list
 from .KeyConditionGenerator import KeyConditionGenerator
+from .ProjectionExpressionGenerator import ProjectionExpressionGenerator
 from .boto3 import (
     item_to_dynamodb_item,
     dynamo_db_item_to_item,
@@ -243,7 +244,7 @@ def query(
 def scan(
         db: object,
         table_name: str,
-        include_attributes: str = None,
+        include_attributes: list = None,
         generated_filter_expression: str = None,
         item_reshaper: callable = None):
     dynamo_db_items = None
@@ -252,7 +253,11 @@ def scan(
     scan_args["TableName"] = table_name
 
     if include_attributes is not None:
-        scan_args["ProjectionExpression"] = include_attributes
+        generated_included_attributes = ProjectionExpressionGenerator() \
+            .attribute_list(include_attributes) \
+            .build()
+        scan_args["ProjectionExpression"] = generated_included_attributes["ProjectionExpression"]
+        scan_args["ExpressionAttributeNames"] = generated_included_attributes["ExpressionAttributeNames"]
     if generated_filter_expression is not None:
         scan_args["FilterExpression"] = generated_filter_expression["FilterExpression"]
         scan_args["ExpressionAttributeValues"] = generated_filter_expression["ExpressionAttributeValues"]
