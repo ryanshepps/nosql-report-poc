@@ -148,6 +148,26 @@ bulk_load_items(
     default_table_name="rshepp02_non_yearly",
     item_reshaper=reshape_shortlist_area)
 
+
+def reshape_shortlist_capitals(csv_row_data: list):
+    new_csv_row_data = []
+
+    for row in csv_row_data:
+        new_csv_row_data.append({
+            "IOS3": row["ISO3"],
+            "Country": row["Country Name"],
+            "Capital": row["Capital"]
+        })
+
+    return new_csv_row_data
+
+
+bulk_load_items(
+    db,
+    file_name="example/input_csv/shortlist_capitals.csv",
+    default_table_name="rshepp02_non_yearly",
+    item_reshaper=reshape_shortlist_capitals)
+
 bulk_load_items(
     db,
     file_name="example/input_csv/un_shortlist.csv",
