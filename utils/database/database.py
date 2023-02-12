@@ -299,7 +299,7 @@ def query_rank(
     items = scan(
         db,
         table_name=table_name,
-        include_attributes=f"{partition_key_name}, {attribute_to_rank}",
+        include_attributes=[partition_key_name, attribute_to_rank],
         item_reshaper=sort_by_attribute_to_rank
     )
 

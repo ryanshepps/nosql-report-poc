@@ -27,36 +27,6 @@ def generate_country_report_context() -> dict:
     context["area_rank"] = query_rank(
         db, "rshepp02_non_yearly", "Country", COUNTRY, "Area")
 
-    country_area = non_yearly_country_data["Area"]  # For popluation density calculations
-
-    def __add_population_and_density_rank(items):
-        # Add Density
-        for item in items:
-            item["population_density"] = int(item["Population"]) / int(country_area)
-
-        population_sorted_items = deepcopy(items)
-        population_sorted_items.sort(key=lambda item: int(item["Population"]), reverse=True)
-
-        density_sorted_items = deepcopy(items)
-        density_sorted_items.sort(key=lambda item: int(item["population_density"]), reverse=True)
-
-        # Add ranks
-        for item in items:
-            for rank, pop_sorted_item in enumerate(population_sorted_items, start=1):
-                if pop_sorted_item["Population"] == item["Population"]:
-                    item["population_rank"] = rank
-                    break
-
-            for rank, density_sorted_item in enumerate(density_sorted_items, start=1):
-                if density_sorted_item["population_density"] == item["population_density"]:
-                    item["population_density_rank"] = rank
-                    break
-
-        # Order by year
-        items.sort(key=lambda item: int(item["Year"]))
-
-        return items
-
     single_country_filter = FilterExpressionGenerator() \
         .attribute_equals("Country", COUNTRY) \
         .build()
@@ -64,18 +34,17 @@ def generate_country_report_context() -> dict:
         db,
         table_name="rshepp02_non_economic",
         generated_filter_expression=single_country_filter,
-        item_reshaper=__add_population_and_density_rank
     )
-
     context["population_items"] = []
     for population_item in population_items:
         context["population_items"].append({
             "year": population_item["Year"],
             "population": population_item["Population"],
-            "population_rank": population_item["population_rank"],
-            "population_density": population_item["population_density"],
-            "population_density_rank": population_item["population_density_rank"]
+            "population_rank": population_item["Population Rank"],
+            "population_density": population_item["Population Density"],
+            "population_density_rank": population_item["Population Density Rank"]
         })
+    context["population_items"].sort(key=lambda item: int(item["year"]))
 
     return context
 
