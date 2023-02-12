@@ -175,7 +175,9 @@ def bulk_load_items(
     pool = Pool()
     for row in csv_row_data:
         if "Table" in row:
-            pool.apply_async(add_item, (None, row["Table"], row))
+            table = row["Table"]
+            del row["Table"]  # Don't actually put Table as an item attribute
+            pool.apply_async(add_item, (None, table, row))
         else:
             pool.apply_async(add_item, (None, default_table_name, row))
 
