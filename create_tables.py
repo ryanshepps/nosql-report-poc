@@ -59,16 +59,14 @@ create_table(
 # # --------------------------------------------------------------------
 
 # # ----------------- Loading items from CSV files -----------------
+country_currency_map = {}
 def reshape_shortlist_curpop(csv_row_data: list):
     new_csv_row_data = []
 
     for row in csv_row_data:
-        # Add Currency to rshepp02_non_yearly
-        new_csv_row_data.append({
-            "Country": row["Country"],
-            "Currency": row["Currency"],
-            "Table": "rshepp02_non_yearly"
-        })
+        # Add Currency to map to be added to economic data later
+        country_currency_map[row["Country"]] = row["Currency"]
+        del row["Currency"]
 
         # Create a new row for each year
         for year in range(1970, 2020):
@@ -96,7 +94,8 @@ def reshape_shortlist_gdppc(csv_row_data: list):
             new_csv_row_data.append({
                 "Country": row["Country"],
                 "Year": year,
-                "GDP": row[str(year)] if row[str(year)] != "" else 0
+                "GDP": row[str(year)] if row[str(year)] != "" else 0,
+                "Currency": country_currency_map[row["Country"]]
             })
 
     return new_csv_row_data
