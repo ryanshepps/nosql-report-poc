@@ -52,5 +52,28 @@ table, th, td {
         {% endfor %}
         </tbody>
     </table>
+
+    <h3>Economics</h3>
+    <p>Currency: {{ currency }}</p>
+    <p>
+        <i>Table of GDP per capital (GDPPC) from {{ earliest_economic_year }} to
+        {{ latest_economic_year }} and rank within the world for that year:</i>
+    </p>
+    <table style="width: 100%">
+        <tbody>
+            <tr>
+                <th>Year</th>
+                <th>GDPPC</th>
+                <th>Rank</th>
+            </tr>
+        {% for item in gdp_items %}
+            <tr>
+                <td>{{ item.year }}</td>
+                <td>{{ item.GDPPC }}</td>
+                <td>{{ item.GDPPC_rank }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
