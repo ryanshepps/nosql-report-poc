@@ -68,3 +68,36 @@ def rank_population_density(db):
         items=new_non_economic_items,
         default_table_name="rshepp02_non_economic"
     )
+
+
+def rank_gddpc_items(db):
+    economic_items = scan(
+        db,
+        table_name="rshepp02_economic"
+    )
+
+    grouped_by_year_economic_items = {}
+    for item in economic_items:
+        item_year = item["Year"]
+
+        if item_year not in grouped_by_year_economic_items:
+            grouped_by_year_economic_items[item_year] = []
+
+        grouped_by_year_economic_items[item_year].append(item)
+
+    # Rank each item in each group
+    new_economic_items = []
+    for year_group in grouped_by_year_economic_items:
+        grouped_by_year_economic_items[year_group] \
+            .sort(key=lambda item: int(item["GDP"]), reverse=True)
+
+        for rank, item in enumerate(grouped_by_year_economic_items[year_group], start=1):
+            item["GDP Rank"] = rank
+
+        new_economic_items.extend(grouped_by_year_economic_items[year_group])
+
+    bulk_load_items(
+        db,
+        items=new_economic_items,
+        default_table_name="rshepp02_economic"
+    )
