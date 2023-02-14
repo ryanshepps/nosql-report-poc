@@ -274,3 +274,25 @@ bulk_load_items(
     default_table_name="rshepp02_economic"
 )
 # --------------------------------------------------------------------
+
+# ----------------- Adding Area Rank -----------------
+non_yearly_items = scan(
+    db,
+    table_name="rshepp02_non_yearly",
+    include_attributes=["Country", "Area"]
+)
+
+non_yearly_items_including_area_rank = []
+non_yearly_items.sort(key=lambda item: int(item["Area"]), reverse=True)
+for rank, item in enumerate(non_yearly_items, start=1):
+    non_yearly_items_including_area_rank.append({
+        "Country": item["Country"],
+        "Area Rank": rank
+    })
+
+bulk_load_items(
+    db,
+    items=non_yearly_items_including_area_rank,
+    default_table_name="rshepp02_non_yearly"
+)
+# --------------------------------------------------------------------
