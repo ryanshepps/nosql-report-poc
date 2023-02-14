@@ -46,7 +46,7 @@ table, th, td {
                 <td>{{ item.year }}</td>
                 <td>{{ item.population }}</td>
                 <td>{{ item.population_rank }}</td>
-                <td>{{ item.population_density }}</td>
+                <td>{{ item.population_density | round(2) }}</td>
                 <td>{{ item.population_density_rank }}</td>
             </tr>
         {% endfor %}

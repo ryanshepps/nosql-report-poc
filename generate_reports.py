@@ -40,7 +40,7 @@ def generate_country_report_context() -> dict:
             "year": population_item["Year"],
             "population": population_item["Population"],
             "population_rank": population_item["Population Rank"],
-            "population_density": population_item["Population Density"],
+            "population_density": float(population_item["Population Density"]),
             "population_density_rank": population_item["Population Density Rank"]
         })
     context["population_items"].sort(key=lambda item: int(item["year"]))
