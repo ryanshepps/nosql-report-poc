@@ -13,8 +13,9 @@ class ProjectionExpressionGenerator:
         return self
 
     def attribute(self, attribute_name):
-        self.expression += f"#{attribute_name}Val, "
-        self.expression_names[f"#{attribute_name}Val"] = attribute_name
+        sanitized_attribute_name = attribute_name.replace(' ', '')
+        self.expression += f"#{sanitized_attribute_name}Val, "
+        self.expression_names[f"#{sanitized_attribute_name}Val"] = attribute_name
         return self
 
     def build(self):
