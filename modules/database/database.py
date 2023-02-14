@@ -199,7 +199,7 @@ def bulk_load_items(
 
 def add_item(db: object, table_name: str, item: dict):
     if db is None:
-        db = authenticate("S5-S3.conf")
+        db = authenticate("authentication.conf")
 
     new_item = item_to_dynamodb_item(item)
     current_item = None

@@ -14,7 +14,7 @@ from utils.deliverable_helpers import (
     rank_gddpc_items
 )
 
-db = authenticate("./S5-S3.conf")
+db = authenticate("./authentication.conf")
 
 
 # ----------------- Creating Tables -----------------

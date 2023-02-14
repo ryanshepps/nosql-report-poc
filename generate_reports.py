@@ -6,7 +6,7 @@ COUNTRY = "Costa Rica"
 
 
 def generate_country_report_context() -> dict:
-    db = authenticate("S5-S3.conf")
+    db = authenticate("authentication.conf")
 
     context = {}
 

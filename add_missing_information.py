@@ -6,7 +6,7 @@ from utils.deliverable_helpers import (
     rank_population
 )
 
-db = authenticate("S5-S3.conf")
+db = authenticate("authentication.conf")
 
 add_item(
     db,
