@@ -220,8 +220,13 @@ def add_item(db: object, table_name: str, item: dict):
     print(f"Added {item} successfully!")
 
 
-def delete_item():
-    return "Unimplemented"
+def delete_item(db: object, table_name: str, item: dict):
+    dynamo_db_item = item_to_dynamodb_item(item)
+
+    db.delete_item(
+        TableName=table_name,
+        Key=dynamo_db_item
+    )
 
 
 def display_table():
