@@ -1,5 +1,5 @@
 import unittest
-from utils.parser import \
+from modules.parser import \
     csv_to_json
 
 

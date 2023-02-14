@@ -1,5 +1,5 @@
 import unittest
-from utils.database import \
+from modules.database import \
     authenticate, \
     create_table, \
     delete_table, \

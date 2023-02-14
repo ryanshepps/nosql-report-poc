@@ -1,4 +1,4 @@
-from utils.database.database import (
+from modules.database.database import (
     scan,
     bulk_load_items
 )

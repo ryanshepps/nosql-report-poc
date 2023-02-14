@@ -1,8 +1,8 @@
-from utils.database.database import (
+from modules.database.database import (
     authenticate,
     add_item
 )
-from deliverable_helpers import (
+from utils.deliverable_helpers import (
     rank_population
 )
 

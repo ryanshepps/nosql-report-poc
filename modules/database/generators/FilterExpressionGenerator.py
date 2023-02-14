@@ -1,4 +1,4 @@
-from .boto3 import item_to_dynamodb_item
+from ..apis.boto3.helpers import item_to_dynamodb_item
 
 
 class FilterExpressionGenerator:

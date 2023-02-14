@@ -1,6 +1,6 @@
-from utils.database.database import authenticate, query, query_rank, scan
-from utils.database.TemplateCompiler import TemplateCompiler
-from utils.database.FilterExpressionGenerator import FilterExpressionGenerator
+from modules.database.database import authenticate, query, query_rank, scan
+from modules.database.TemplateCompiler import TemplateCompiler
+from modules.database.generators.FilterExpressionGenerator import FilterExpressionGenerator
 
 COUNTRY = "Costa Rica"
 

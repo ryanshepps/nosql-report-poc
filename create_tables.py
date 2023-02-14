@@ -1,14 +1,14 @@
-from enums.database import (
+from modules.database.enums import (
     AttributeType,
     KeyType,
 )
-from utils.database.database import (
+from modules.database.database import (
     authenticate,
     bulk_load_items,
     create_table,
     scan,
 )
-from deliverable_helpers import (
+from utils.deliverable_helpers import (
     rank_population,
     rank_population_density,
     rank_gddpc_items

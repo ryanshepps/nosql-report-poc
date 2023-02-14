@@ -1,10 +1,10 @@
 from multiprocessing import Pool
 import configparser
 import copy
-from utils.parser import csv_to_list
-from .KeyConditionGenerator import KeyConditionGenerator
-from .ProjectionExpressionGenerator import ProjectionExpressionGenerator
-from .boto3 import (
+from modules.parser import csv_to_list
+from .generators.KeyConditionGenerator import KeyConditionGenerator
+from .generators.ProjectionExpressionGenerator import ProjectionExpressionGenerator
+from .apis.boto3.helpers import (
     item_to_dynamodb_item,
     dynamo_db_item_to_item,
     generate_item_key_schema_from_table_key_schema
