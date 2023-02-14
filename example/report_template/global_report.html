@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table, th, td {
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+</style>
+</head>
+<body>
+    <h3>Report B - Global Report</h3>
+
+    <center>
+        <h3>Global Report</h3>
+    </center>
+
+    <p>
+        <b>Year: {{ year }}</b>
+    </p>
+    <p>
+        <i>Number of Countries: {{ num_countries }}</i>
+    </p>
+
+    <p>
+        <b>Table of Countries Ranked by Population</b> (largest to smallest)
+    </p>
+    <table style="width: 100%">
+        <tbody>
+            <tr>
+                <th>Country Name</th>
+                <th>Population</th>
+                <th>Rank</th>
+            </tr>
+            {% for item in population_items %}
+                <tr>
+                    <td>{{ item.country_name }}</td>
+                    <td>{{ item.population }}</td>
+                    <td>{{ item.population_rank }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        <b>Table of Countries Ranked by Area</b> (largest to smallest)
+    </p>
+    <table style="width: 100%">
+        <tbody>
+            <tr>
+                <th>Country Name</th>
+                <th>Area (sq km)</th>
+                <th>Rank</th>
+            </tr>
+            {% for item in area_items %}
+                <tr>
+                    <td>{{ item.country_name }}</td>
+                    <td>{{ item.area }}</td>
+                    <td>{{ item.area_rank }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        <b>Table of Countries Ranked by Density</b> (largest to smallest)
+    </p>
+    <table style="width: 100%">
+        <tbody>
+            <tr>
+                <th>Country Name</th>
+                <th>Density (people / sq km)</th>
+                <th>Rank</th>
+            </tr>
+            {% for item in density_items %}
+                <tr>
+                    <td>{{ item.country_name }}</td>
+                    <td>{{ item.density }}</td>
+                    <td>{{ item.density_rank }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -4,11 +4,12 @@ from utils.database.TemplateCompiler import TemplateCompiler
 from utils.database.FilterExpressionGenerator import FilterExpressionGenerator
 
 COUNTRY = "Costa Rica"
-YEAR = "2019"
+YEAR = 2019
 
 db = authenticate("S5-S3.conf")
 
 
+# ------------------------------- Country Report ------------------------------
 def generate_country_report_context() -> dict:
     context = {}
 
@@ -72,3 +73,68 @@ TemplateCompiler(
     TemplatePath="country_report.html",
     Context=generate_country_report_context()
 ).compile(f"compiled/{COUNTRY.replace(' ', '')}_report.html")
+# -------------------------------------------------------------
+
+
+def generate_global_report_context() -> dict:
+    context = {}
+    context["year"] = YEAR
+
+    year_filter = FilterExpressionGenerator() \
+        .attribute_equals("Year", YEAR) \
+        .build()
+    population_items = scan(
+        db,
+        table_name="rshepp02_non_economic",
+        generated_filter_expression=year_filter
+    )
+    context["population_items"] = []
+    for item in population_items:
+        if item["Population"] != 0:
+            context["population_items"].append({
+                "country_name": item["Country"],
+                "population": item["Population"],
+                "population_rank": item["Population Rank"],
+            })
+    context["population_items"].sort(key=lambda item: int(item["population_rank"]))
+
+    area_items = scan(
+        db,
+        table_name="rshepp02_non_yearly",
+        include_attributes=["Country", "Area", "Area Rank"]
+    )
+    context["area_items"] = []
+    for item in area_items:
+        if item["Area"] != 0:
+            context["area_items"].append({
+                "country_name": item["Country"],
+                "area": item["Area"],
+                "area_rank": item["Area Rank"],
+            })
+    context["area_items"].sort(key=lambda item: int(item["area_rank"]))
+
+    density_items = scan(
+        db,
+        table_name="rshepp02_non_economic",
+        generated_filter_expression=year_filter
+    )
+    context["density_items"] = []
+    for item in density_items:
+        if str(item["Population Density"]) != "0.0":
+            context["density_items"].append({
+                "country_name": item["Country"],
+                "density": item["Population Density"],
+                "density_rank": item["Population Density Rank"],
+            })
+    context["density_items"].sort(key=lambda item: int(item["density_rank"]))
+
+    context["num_countries"] = len(population_items)
+
+    return context
+
+
+TemplateCompiler(
+    TemplateRootFolder="./example/report_template/",
+    TemplatePath="global_report.html",
+    Context=generate_global_report_context()
+).compile(f"compiled/{YEAR}_report.html")
