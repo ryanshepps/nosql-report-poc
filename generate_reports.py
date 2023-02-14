@@ -36,13 +36,14 @@ def generate_country_report_context() -> dict:
     )
     context["population_items"] = []
     for population_item in population_items:
-        context["population_items"].append({
-            "year": population_item["Year"],
-            "population": population_item["Population"],
-            "population_rank": population_item["Population Rank"],
-            "population_density": float(population_item["Population Density"]),
-            "population_density_rank": population_item["Population Density Rank"]
-        })
+        if int(population_item["Population"]) != 0:
+            context["population_items"].append({
+                "year": population_item["Year"],
+                "population": population_item["Population"],
+                "population_rank": population_item["Population Rank"],
+                "population_density": float(population_item["Population Density"]),
+                "population_density_rank": population_item["Population Density Rank"]
+            })
     context["population_items"].sort(key=lambda item: int(item["year"]))
 
     gdp_items = scan(
@@ -53,11 +54,12 @@ def generate_country_report_context() -> dict:
     context["currency"] = gdp_items[0]["Currency"]
     context["gdp_items"] = []
     for gdp_item in gdp_items:
-        context["gdp_items"].append({
-            "year": gdp_item["Year"],
-            "GDPPC": gdp_item["GDP"],
-            "GDPPC_rank": gdp_item["GDP Rank"]
-        })
+        if int(gdp_item["GDP"]) != 0:
+            context["gdp_items"].append({
+                "year": gdp_item["Year"],
+                "GDPPC": gdp_item["GDP"],
+                "GDPPC_rank": gdp_item["GDP Rank"]
+            })
     context["gdp_items"].sort(key=lambda item: int(item["year"]))
     context["earliest_economic_year"] = context["gdp_items"][0]["year"]
     context["latest_economic_year"] = context["gdp_items"][-1]["year"]
