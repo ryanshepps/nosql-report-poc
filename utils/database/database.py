@@ -10,6 +10,7 @@ from .boto3 import (
     generate_item_key_schema_from_table_key_schema
 )
 import boto3
+from tabulate import tabulate
 
 
 def authenticate(
@@ -229,8 +230,19 @@ def delete_item(db: object, table_name: str, item: dict):
     )
 
 
-def display_table():
-    return "Unimplemented"
+def display_table(
+        db,
+        table_name: str,
+        include_attributes: list = None,
+        generated_filter_expression: str = None):
+    table_items = scan(
+        db,
+        table_name=table_name,
+        include_attributes=include_attributes,
+        generated_filter_expression=generated_filter_expression
+    )
+
+    print(tabulate(table_items, headers="keys"))
 
 
 def query(
@@ -283,9 +295,10 @@ def scan(
             scan_args["ExpressionAttributeNames"] = \
                 generated_filter_expression["ExpressionAttributeNames"]
         else:
-            scan_args["ExpressionAttributeNames"].extend(
-                generated_filter_expression["ExpressionAttributeNames"]
-            )
+            scan_args["ExpressionAttributeNames"] = {
+                **generated_filter_expression["ExpressionAttributeNames"],
+                **scan_args["ExpressionAttributeNames"]
+            }
 
     dynamo_db_items = db.scan(
         **scan_args
