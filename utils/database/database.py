@@ -269,8 +269,18 @@ def scan(
         scan_args["ProjectionExpression"] = generated_included_attributes["ProjectionExpression"]
         scan_args["ExpressionAttributeNames"] = generated_included_attributes["ExpressionAttributeNames"]
     if generated_filter_expression is not None:
-        scan_args["FilterExpression"] = generated_filter_expression["FilterExpression"]
-        scan_args["ExpressionAttributeValues"] = generated_filter_expression["ExpressionAttributeValues"]
+        scan_args["FilterExpression"] = \
+            generated_filter_expression["FilterExpression"]
+        scan_args["ExpressionAttributeValues"] = \
+            generated_filter_expression["ExpressionAttributeValues"]
+
+        if "ExpressionAttributeNames" not in scan_args:
+            scan_args["ExpressionAttributeNames"] = \
+                generated_filter_expression["ExpressionAttributeNames"]
+        else:
+            scan_args["ExpressionAttributeNames"].extend(
+                generated_filter_expression["ExpressionAttributeNames"]
+            )
 
     dynamo_db_items = db.scan(
         **scan_args
