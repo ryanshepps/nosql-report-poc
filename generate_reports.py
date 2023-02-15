@@ -1,6 +1,7 @@
 from modules.database.database import authenticate, query, query_rank, scan
 from modules.database.TemplateCompiler import TemplateCompiler
 from modules.database.generators.FilterExpressionGenerator import FilterExpressionGenerator
+from copy import deepcopy
 
 COUNTRY = "Costa Rica"
 
@@ -36,7 +37,15 @@ def generate_country_report_context() -> dict:
     )
     context["population_items"] = []
     for population_item in population_items:
-        if int(population_item["Population"]) != 0:
+        if int(population_item["Population"]) == 0:
+            context["population_items"].append({
+                "year": population_item["Year"],
+                "population": "",
+                "population_rank": "",
+                "population_density": "",
+                "population_density_rank": "",
+            })
+        else:
             context["population_items"].append({
                 "year": population_item["Year"],
                 "population": population_item["Population"],
@@ -45,6 +54,19 @@ def generate_country_report_context() -> dict:
                 "population_density_rank": population_item["Population Density Rank"]
             })
     context["population_items"].sort(key=lambda item: int(item["year"]))
+
+    # Trim earliest and latest years that have 0 population (as per spec)
+    for population_item in deepcopy((context["population_items"])):
+        if population_item["population"] == "":
+            context["population_items"].pop(0)
+        else:
+            break
+
+    for population_item in reversed(deepcopy(context["population_items"])):
+        if population_item["population"] == "":
+            context["population_items"].pop(-1)
+        else:
+            break
 
     gdp_items = scan(
         db,
@@ -60,7 +82,28 @@ def generate_country_report_context() -> dict:
                 "GDPPC": gdp_item["GDP"],
                 "GDPPC_rank": gdp_item["GDP Rank"]
             })
+        else:
+            context["gdp_items"].append({
+                "year": "",
+                "GDPPC": "",
+                "GDPPC_rank": ""
+            })
+
     context["gdp_items"].sort(key=lambda item: int(item["year"]))
+
+    # Trim earliest and latest years that have 0 GDP (as per spec)
+    for gdp_item in deepcopy((context["gdp_items"])):
+        if gdp_item["GDPPC"] == "":
+            context["gdp_items"].pop(0)
+        else:
+            break
+
+    for gdp_item in reversed(deepcopy((context["gdp_items"]))):
+        if gdp_item["GDPPC"] == "":
+            context["gdp_items"].pop(-1)
+        else:
+            break
+
     context["earliest_economic_year"] = context["gdp_items"][0]["year"]
     context["latest_economic_year"] = context["gdp_items"][-1]["year"]
 
