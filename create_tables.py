@@ -11,7 +11,8 @@ from modules.database.database import (
 from utils.deliverable_helpers import (
     rank_population,
     rank_population_density,
-    rank_gddpc_items
+    rank_gddpc_items,
+    add_population_density
 )
 
 db = authenticate("./authentication.conf")
@@ -178,36 +179,7 @@ bulk_load_items(
     default_table_name="rshepp02_non_yearly")
 # --------------------------------------------------------------------
 
-# ----------------- Adding Population Density to table -----------------
-area_per_country = scan(
-    db,
-    table_name="rshepp02_non_yearly",
-    include_attributes=["Country", "Area"]
-)
-country_area_map = {}
-for item in area_per_country:
-    country_area_map[item["Country"]] = item["Area"]
-
-population_items = scan(
-    db,
-    table_name="rshepp02_non_economic",
-    include_attributes=["Population", "Year", "Country"]
-)
-population_density_items = []
-for item in population_items:
-    population_density_items.append({
-        "Year": int(item["Year"]),
-        "Country": item["Country"],
-        "Population Density": str(int(item["Population"]) / int(country_area_map[item["Country"]]))
-    })
-
-bulk_load_items(
-    db,
-    items=population_density_items,
-    default_table_name="rshepp02_non_economic"
-)
-# --------------------------------------------------------------------
-
+add_population_density(db)
 rank_population(db)
 rank_population_density(db)
 rank_gddpc_items(db)

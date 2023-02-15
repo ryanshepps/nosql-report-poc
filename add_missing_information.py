@@ -3,7 +3,9 @@ from modules.database.database import (
     add_item
 )
 from utils.deliverable_helpers import (
-    rank_population
+    rank_population,
+    add_population_density,
+    rank_population_density
 )
 
 db = authenticate("authentication.conf")
@@ -49,6 +51,8 @@ add_item(
 )
 
 rank_population(db)
+add_population_density(db)
+rank_population_density(db)
 
 add_item(
     db,
