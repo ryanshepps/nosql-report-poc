@@ -8,14 +8,17 @@ from modules.database.database import (
     create_table,
     scan,
 )
-from utils.deliverable_helpers import (
+from utils.second_deliverable_helpers import (
     rank_population,
     rank_population_density,
     rank_gddpc_items,
     add_population_density
 )
+from modules.database.Database import Database
 
 db = authenticate("./authentication.conf")
+
+database = Database()
 
 
 # ----------------- Creating Tables -----------------
@@ -85,8 +88,7 @@ def reshape_shortlist_curpop(csv_row_data: list):
     return new_csv_row_data
 
 
-bulk_load_items(
-    db,
+database.bulk_load_items(
     file_name="example/input_csv/shortlist_curpop.csv",
     default_table_name="rshepp02_non_economic",
     item_reshaper=reshape_shortlist_curpop)
@@ -107,8 +109,7 @@ def reshape_shortlist_gdppc(csv_row_data: list):
     return new_csv_row_data
 
 
-bulk_load_items(
-    db,
+database.bulk_load_items(
     file_name="example/input_csv/shortlist_gdppc.csv",
     default_table_name="rshepp02_economic",
     item_reshaper=reshape_shortlist_gdppc)
@@ -127,8 +128,7 @@ def reshape_shortlist_languages(csv_row_data: list):
     return new_csv_row_data
 
 
-bulk_load_items(
-    db,
+database.bulk_load_items(
     file_name="example/input_csv/shortlist_languages.csv",
     default_table_name="rshepp02_non_yearly",
     item_reshaper=reshape_shortlist_languages)
@@ -147,8 +147,7 @@ def reshape_shortlist_area(csv_row_data: list):
     return new_csv_row_data
 
 
-bulk_load_items(
-    db,
+database.bulk_load_items(
     file_name="example/input_csv/shortlist_area.csv",
     default_table_name="rshepp02_non_yearly",
     item_reshaper=reshape_shortlist_area)
@@ -167,19 +166,17 @@ def reshape_shortlist_capitals(csv_row_data: list):
     return new_csv_row_data
 
 
-bulk_load_items(
-    db,
+database.bulk_load_items(
     file_name="example/input_csv/shortlist_capitals.csv",
     default_table_name="rshepp02_non_yearly",
     item_reshaper=reshape_shortlist_capitals)
 
-bulk_load_items(
-    db,
+database.bulk_load_items(
     file_name="example/input_csv/un_shortlist.csv",
     default_table_name="rshepp02_non_yearly")
 # --------------------------------------------------------------------
 
-add_population_density(db)
-rank_population(db)
-rank_population_density(db)
-rank_gddpc_items(db)
+add_population_density(db, database)
+rank_population(db, database)
+rank_population_density(db, database)
+rank_gddpc_items(db, database)
