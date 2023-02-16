@@ -6,6 +6,15 @@ table, th, td {
     border-collapse: collapse;
     border: 1px solid black;
 }
+
+#non-yearly > tbody > tr > td {
+    padding: 20px 5px;
+}
+
+#population > tbody > tr > td,
+#economics > tbody > tr > td {
+    padding-left: 5px;
+}
 </style>
 </head>
 <body>
@@ -20,8 +29,11 @@ table, th, td {
                     <td>Area 51100 sq km (25)</td>
                 </tr>
                 <tr>
-                    <td>Official/National Languages: Spanish</td>
-                    <td>Capital City: San Jose</td>
+                    <td>
+                        Official/National Languages: Spanish
+                        <br>
+                        Capital City: San Jose
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -32,7 +44,7 @@ table, th, td {
         <i>Table of Population, Population Density, and their respective world
         ranking for that year, ordered by year:</i>
     </p>
-    <table style="width: 100%">
+    <table id="population" style="width: 100%">
         <tbody>
             <tr>
                 <th>Year</th>
@@ -501,7 +513,7 @@ table, th, td {
         <i>Table of GDP per capital (GDPPC) from 1970 to
         2019 and rank within the world for that year:</i>
     </p>
-    <table style="width: 100%">
+    <table id="economics" style="width: 100%">
         <tbody>
             <tr>
                 <th>Year</th>
