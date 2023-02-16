@@ -1,5 +1,5 @@
 from modules.database.database import authenticate, query, query_rank, scan
-from modules.database.TemplateCompiler import TemplateCompiler
+from modules.TemplateCompiler import TemplateCompiler
 from modules.database.generators.FilterExpressionGenerator import FilterExpressionGenerator
 from copy import deepcopy
 
