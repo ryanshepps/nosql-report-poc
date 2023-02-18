@@ -117,24 +117,6 @@ def delete_table(db: object, table_name: str):
     print(f"Table {table_name} deleted.")
 
 
-def __rename_indexes(rows_data: list, index_renames: list) -> list:
-    """
-    Todo:
-        Rename indexes in place to avoid an entirely new loop.
-    """
-    renamed_row_data = copy.deepcopy(rows_data)
-
-    for row_index in range(len(rows_data)):
-        for key in rows_data[row_index]:
-            for index in index_renames:
-                if key == index["IndexToRename"]:
-                    renamed_row_data[row_index][index["RenameTo"]] = rows_data[row_index][key]
-                    del renamed_row_data[row_index][index["IndexToRename"]]
-                    break
-
-    return renamed_row_data
-
-
 def bulk_load_items(
         db: object,
         default_table_name: str,
