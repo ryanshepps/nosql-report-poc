@@ -24,7 +24,11 @@ class TemplateCompiler():
 
         os.makedirs(os.path.dirname(full_output_path), exist_ok=True)
 
-        return self.jinja_env \
+        compilation_result = self.jinja_env \
             .get_template(self.template_path) \
             .stream(self.context) \
             .dump(full_output_path)
+
+        print(f"Compiled to {full_output_path}")
+
+        return compilation_result
